@@ -19,6 +19,11 @@ function dismissIntro() {
   intro.classList.add("is-leaving");
   document.body.classList.remove("intro-locked");
   window.setTimeout(() => intro.setAttribute("aria-hidden", "true"), 1000);
+  const audio = document.querySelector("[data-intro-audio]");
+  if (audio) {
+    audio.pause();
+    audio.currentTime = 0;
+  }
 }
 
 introSkip?.addEventListener("click", dismissIntro);
