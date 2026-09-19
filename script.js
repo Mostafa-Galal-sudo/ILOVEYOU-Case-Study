@@ -24,6 +24,25 @@ function dismissIntro() {
 introSkip?.addEventListener("click", dismissIntro);
 window.setTimeout(dismissIntro, 5200);
 
+const introAudio = document.querySelector("[data-intro-audio]");
+let audioStarted = false;
+function playIntroAudio() {
+  if (audioStarted || !introAudio) return;
+  audioStarted = true;
+  introAudio.currentTime = 0;
+  introAudio.play().catch(() => {});
+  window.setTimeout(() => {
+    introAudio.pause();
+    introAudio.currentTime = 0;
+  }, 12000);
+  document.removeEventListener("click", playIntroAudio);
+  document.removeEventListener("keydown", playIntroAudio);
+}
+// Browsers block autoplay with sound until the user interacts with the page,
+// so we start it on the first click/keypress anywhere (Enter the case button included).
+document.addEventListener("click", playIntroAudio, { once: true });
+document.addEventListener("keydown", playIntroAudio, { once: true });
+
 function updateScrollState() {
   const scrollable = doc.scrollHeight - window.innerHeight;
   const progress = scrollable > 0 ? window.scrollY / scrollable : 0;
