@@ -9,6 +9,8 @@
     />
     <meta name="theme-color" content="#080807" />
     <title>ILOVEYOU — Anatomy of a Digital Love Letter</title>
+    <link rel="preload" href="assets/iloveyou.mp3" as="audio" fetchpriority="high" />
+    <link rel="preload" href="assets/intro-love.gif" as="image" fetchpriority="high" />
     <link rel="stylesheet" href="styles.css" />
     <script src="script.js" defer></script>
   </head>
@@ -23,7 +25,7 @@
           <span>Opening case file…</span>
         </div>
         <figure class="intro-frame">
-          <img src="assets/intro-love.gif" alt="Animated vintage love message" />
+          <img src="assets/intro-love.gif" alt="Animated vintage love message" fetchpriority="high" />
           <figcaption>Attachment preview / source supplied</figcaption>
         </figure>
       </div>
@@ -33,7 +35,7 @@
       </div>
     </section>
 
-    <audio data-intro-audio src="assets/iloveyou.mp3" preload="auto"></audio>
+    <audio data-intro-audio src="assets/iloveyou.mp3" preload="auto" fetchpriority="high"></audio>
 
     <a class="skip-link" href="#case-study">Skip to case study</a>
 
