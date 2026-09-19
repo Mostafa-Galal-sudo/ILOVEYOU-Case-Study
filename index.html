@@ -15,7 +15,16 @@
     <script src="script.js" defer></script>
   </head>
   <body class="intro-locked">
-    <section class="intro-gate" data-intro aria-label="Opening sequence">
+    <section class="start-gate" data-start-gate aria-label="Love letter preview gate">
+      <div class="start-gate-inner">
+        <p class="start-gate-file">LOVE-LETTER-FOR-YOU.TXT.vbs</p>
+        <h1 class="start-gate-title">Open the<br />Love Letter</h1>
+        <button type="button" class="start-gate-button" data-start-button>Open the Love Letter</button>
+        <span class="start-gate-hint">Sound plays for 12 seconds — headphones recommended.</span>
+      </div>
+    </section>
+
+    <section class="intro-gate is-pending" data-intro aria-label="Opening sequence">
       <div class="intro-backdrop" aria-hidden="true"></div>
       <div class="intro-scanlines" aria-hidden="true"></div>
       <div class="intro-layout">
@@ -25,7 +34,7 @@
           <span>Opening case file…</span>
         </div>
         <figure class="intro-frame">
-          <img src="assets/intro-love.gif" alt="Animated vintage love message" fetchpriority="high" />
+          <img data-src="assets/intro-love.gif" alt="Animated vintage love message" fetchpriority="high" />
           <figcaption>Attachment preview / source supplied</figcaption>
         </figure>
       </div>

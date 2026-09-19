@@ -22,26 +22,44 @@ function dismissIntro() {
 }
 
 introSkip?.addEventListener("click", dismissIntro);
-window.setTimeout(dismissIntro, 12000);
 
 const introAudio = document.querySelector("[data-intro-audio]");
-let audioStarted = false;
-function playIntroAudio() {
-  if (audioStarted || !introAudio) return;
-  audioStarted = true;
-  introAudio.currentTime = 0;
-  introAudio.play().catch(() => {});
-  window.setTimeout(() => {
-    introAudio.pause();
+const introImg = document.querySelector(".intro-frame img");
+const startGate = document.querySelector("[data-start-gate]");
+const startButton = document.querySelector("[data-start-button]");
+let caseStarted = false;
+
+function startCase() {
+  if (caseStarted) return;
+  caseStarted = true;
+
+  startGate?.classList.add("is-leaving");
+  window.setTimeout(() => startGate?.setAttribute("aria-hidden", "true"), 700);
+
+  // Reveal the intro-gate now (it was display:none), which restarts its
+  // CSS animations (loader bar, frame impact) from frame one.
+  intro?.classList.remove("is-pending");
+
+  // The gif has no src until now, so it starts playing exactly on click.
+  // assets/intro-love.gif is preloaded, so this paints instantly.
+  if (introImg && introImg.dataset.src) {
+    introImg.src = introImg.dataset.src;
+  }
+
+  // Audio: this fires inside a real click handler, so browsers allow it.
+  if (introAudio) {
     introAudio.currentTime = 0;
-  }, 12000);
-  document.removeEventListener("click", playIntroAudio);
-  document.removeEventListener("keydown", playIntroAudio);
+    introAudio.play().catch(() => {});
+    window.setTimeout(() => {
+      introAudio.pause();
+      introAudio.currentTime = 0;
+    }, 12000);
+  }
+
+  window.setTimeout(dismissIntro, 12000);
 }
-// Browsers block autoplay with sound until the user interacts with the page,
-// so we start it on the first click/keypress anywhere (Enter the case button included).
-document.addEventListener("click", playIntroAudio, { once: true });
-document.addEventListener("keydown", playIntroAudio, { once: true });
+
+startButton?.addEventListener("click", startCase);
 
 function updateScrollState() {
   const scrollable = doc.scrollHeight - window.innerHeight;

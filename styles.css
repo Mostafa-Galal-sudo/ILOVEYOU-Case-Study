@@ -27,6 +27,7 @@ code, pre { font-family: var(--mono); }
 ::selection { color: var(--white); background: var(--red); }
 
 .intro-gate { position: fixed; inset: 0; z-index: 1000; display: grid; align-items: center; padding: clamp(1.25rem, 4vw, 4rem); overflow: hidden; color: #fff; background: #e82792; transition: clip-path 1s cubic-bezier(.76,0,.24,1), visibility 1s; clip-path: inset(0 0 0 0); }
+.intro-gate.is-pending { display: none; }
 .intro-gate.is-leaving { clip-path: inset(0 0 100% 0); visibility: hidden; }
 .intro-backdrop { position: absolute; inset: -8%; z-index: -2; background: linear-gradient(90deg, rgba(0,0,0,.92), rgba(0,0,0,.12)), url("assets/intro-love.gif") center / cover; filter: blur(28px) saturate(.75); transform: scale(1.08); }
 .intro-scanlines { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: .25; background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,0,0,.45) 4px); mix-blend-mode: multiply; }
@@ -37,13 +38,22 @@ code, pre { font-family: var(--mono); }
 .intro-copy h2 { font-size: clamp(4rem, 7.5vw, 8.5rem); text-shadow: .05em .05em 0 #111; }
 .intro-copy span { display: inline-block; margin-top: 2rem; padding: .4rem .65rem; color: #111; background: #ff54b2; }
 .intro-frame { position: relative; z-index: 2; width: min(100%, 800px); margin: 0; padding: clamp(.65rem, 1.2vw, 1rem); background: #0b0b0b; border: 1px solid rgba(255,255,255,.35); box-shadow: 2rem 2rem 0 rgba(0,0,0,.55); animation: intro-impact .75s cubic-bezier(.2,.8,.2,1) both; }
-.intro-frame img { display: block; width: 100%; aspect-ratio: 4/3; object-fit: cover; }
+.intro-frame img { display: block; width: 100%; aspect-ratio: 4/3; object-fit: cover; background: #0b0b0b; }
 .intro-frame figcaption { padding: .65rem .2rem .1rem; color: rgba(255,255,255,.55); font-family: var(--mono); font-size: .62rem; }
 .intro-controls { position: absolute; z-index: 4; left: var(--gutter); right: var(--gutter); bottom: 1.4rem; display: flex; align-items: center; gap: 1rem; }
 .intro-loader { flex: 1; height: 2px; background: rgba(255,255,255,.22); }
-.intro-loader span { display: block; height: 100%; background: #ff4eb0; transform-origin: left; animation: intro-load 5.2s linear both; }
+.intro-loader span { display: block; height: 100%; background: #ff4eb0; transform-origin: left; animation: intro-load 12s linear both; }
 .intro-controls button { padding: .6rem .85rem; color: #fff; background: transparent; border: 1px solid rgba(255,255,255,.6); cursor: pointer; }
 .intro-controls button:hover, .intro-controls button:focus-visible { color: #000; background: #fff; outline: 0; }
+
+.start-gate { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: clamp(1.25rem, 4vw, 4rem); text-align: center; color: #fff; background: radial-gradient(120% 140% at 50% 20%, #1c1a17 0%, var(--ink) 60%); transition: opacity .6s ease, visibility .6s ease; }
+.start-gate.is-leaving { opacity: 0; visibility: hidden; pointer-events: none; }
+.start-gate-inner { display: grid; gap: 1.4rem; justify-items: center; max-width: 640px; }
+.start-gate-file { margin: 0; color: #ff82c7; font-family: var(--mono); font-size: .78rem; letter-spacing: .04em; }
+.start-gate-title { margin: 0; color: #fff; font-family: var(--display); font-size: clamp(2.6rem, 8vw, 5.5rem); line-height: .96; }
+.start-gate-button { padding: 1.1rem 2.6rem; color: var(--ink); background: #ff4eb0; border: none; font-family: var(--body); font-size: 1rem; font-weight: 700; letter-spacing: .02em; cursor: pointer; transition: transform .2s ease, background .2s ease; }
+.start-gate-button:hover, .start-gate-button:focus-visible { background: #fff; outline: 0; transform: translateY(-2px); }
+.start-gate-hint { color: rgba(255,255,255,.55); font-family: var(--mono); font-size: .68rem; }
 
 .infection-atmosphere { position: fixed; inset: 0; z-index: 90; pointer-events: none; opacity: calc(var(--infection-level) * .82); transition: opacity .12s linear; }
 .infection-vignette, .infection-scan, .infection-noise { position: absolute; inset: 0; }
@@ -359,6 +369,6 @@ body.theme-threat .opening-copy code { color: #ffb9b9; background: #351515; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-  .intro-gate { display: none; }
+  .intro-gate, .start-gate { display: none; }
   body.intro-locked { overflow: auto; }
 }
