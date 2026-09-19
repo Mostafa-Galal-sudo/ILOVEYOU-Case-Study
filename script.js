@@ -22,7 +22,7 @@ function dismissIntro() {
 }
 
 introSkip?.addEventListener("click", dismissIntro);
-window.setTimeout(dismissIntro, 5200);
+window.setTimeout(dismissIntro, 12000);
 
 const introAudio = document.querySelector("[data-intro-audio]");
 let audioStarted = false;
